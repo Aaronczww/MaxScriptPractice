@@ -279,6 +279,7 @@ toolTip:" [MaxScrpit入门]模型检查"
         (
             try 
             (
+                local count = 0
                 sceneObjects = selection 
                 if(sceneObjects.count < 2) then
                 (
@@ -290,14 +291,12 @@ toolTip:" [MaxScrpit入门]模型检查"
                     (
                         convertToPoly obj
                     )
-                    for i=1 to sceneObjects.count do
+                    for i=1 to (sceneObjects.count-1) do
                     (
-                        if(fn_checkGeometry_bool sceneObjects[i]) and i < sceneObjects.count then
-                        (
-                            polyOp.attach sceneObjects[i+1] sceneObjects[i]
-                        )
+                        Output.text = Output.text + "附加!\n"
+                        polyOp.attach sceneObjects[1] sceneObjects[2]
                     )
-                    local matAry = sceneObjects[sceneObjects.count].material
+                    local matAry = sceneObjects[1].material
                     for j=1 to matAry.count do
                     (
                         for k=(j+1) to matAry.count do
@@ -307,11 +306,23 @@ toolTip:" [MaxScrpit入门]模型检查"
                                 if(matAry[j].name == matAry[k].name) then
                                 (
                                     matAry[k] = undefined
+                                    count =  count + 1
+                                    for obj in sceneObjects do
+                                    (
+                                        for i = 1 to polyOp.getNumFaces obj do
+                                        (
+                                            if (polyOp.getFaceMatID obj i) == k then
+                                            (
+                                                polyOp.setFaceMatID obj i j
+                                            )
+                                        )
+                                    )
                                 )
                             )
                         )
                     )
-                Output.text = Output.text + "附加选择物体!\n"
+                    matAry.numsubs = matAry.count - count
+                    Output.text = Output.text + "附加物体成功!\n"
                 )
             ) 
             catch 
